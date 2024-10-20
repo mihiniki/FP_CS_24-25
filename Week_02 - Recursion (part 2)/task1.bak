@@ -19,13 +19,12 @@ calculating `x` to the power of `n`.
   )
 
 (define (pow-iter x n)
-  (define (helper result n)
+  (define (helper result x n)
     (if (zero? n)
         result
-        (helper (* x result) (sub1 n))
+        (helper (* x result) x (sub1 n))
         )
     )
-  (helper 1 n)
   )
 
 (= (pow-rec 2 5) 32)

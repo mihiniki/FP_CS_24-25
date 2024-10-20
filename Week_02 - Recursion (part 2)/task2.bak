@@ -10,23 +10,21 @@ Define a predicate that checks whether a number is prime.
 1. All tests pass.
 2. Parameter validation is performed.
 |#
-(require math/number-theory)
 
 (define (num-prime? n)
   (define (helper start)
     (cond
       [(= 1 start) #t]
-      [(divides? start n) #f]
-      ;[(zero? (remainder n start) #f]
+      [(zero? (remainder n start)) #f]
       [else (helper (sub1 start))])
     )
   (if (< n 2)
-      #f
+      (error ("n must be natural"))
       (helper (sub1 n))
       )
   )
 
-(equal? (num-prime? 1) #f)
+;(equal? (num-prime? 1) #f)
 (equal? (num-prime? 2) #t)
 (equal? (num-prime? 3) #t)
 (equal? (num-prime? 6) #f)

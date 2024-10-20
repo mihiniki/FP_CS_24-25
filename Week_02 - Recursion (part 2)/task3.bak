@@ -8,20 +8,9 @@ divisors of a number. For negative numbers return `0`.
 
 1. All tests pass.
 |#
-(require math/number-theory)
 
 (define (sum-divs n)
-  (define (helper sum start)
-    (cond
-      [(zero? start) sum]
-      [(divides? start n) (helper (+ sum start) (sub1 start))]
-      [else (helper sum (sub1 start))]
-      )
-    )
-  (if (< n 0)
-      0
-      (helper 0 n)
-      )
+  
   )
 
 (= (sum-divs 0) 0)

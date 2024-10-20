@@ -15,7 +15,7 @@ Assume correct input.
 (require math/number-theory)
 
 (define (perfect? n)
-  (and (> n 0) (= n (- (divisor-sum n) n)))
+  (and (> n 0) (= n (- (divides-sum n) n)))
   )
 
 (equal? (perfect? 6) #t)

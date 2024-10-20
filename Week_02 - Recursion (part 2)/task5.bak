@@ -14,7 +14,7 @@ in an ascending order.
   (cond
     [(< n 10) #t]
     [(>= (remainder n 10) (remainder (quotient n 10) 10))(inc-digits? (quotient n 10))]
-    [else #f]
+    [(else #f)]
     )
   )
 

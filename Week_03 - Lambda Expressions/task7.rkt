@@ -20,11 +20,28 @@ Using `accumulate` define a procedure that:
   )
 
 (define (all? start end p?)
-  
+  (accumulate
+   (λ (x y) (and x y))
+   #t
+   (min start end)
+   (max start end)
+   p?
+   add1)
   )
 
 (define (argmin f start end)
-  
+  (accumulate
+   (λ (current acc)
+     (if (< (f current) (f acc))
+         current
+         acc
+         )
+     )
+   start
+   (add1 start)
+   end
+   identity
+   add1)
   )
 
 #|

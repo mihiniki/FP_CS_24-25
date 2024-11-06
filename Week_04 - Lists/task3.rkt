@@ -17,11 +17,17 @@ Define a procedure that checks whether an element is present in a list.
   )
 
 (define (elem-rec-without-mc? x xs)
-   
+  (and
+   (not (null? xs))
+   (or
+    (equal? x (car xs))
+    (elem-rec-without-mc? x (cdr xs))
+    )
+   )
   )
 
 (define (elem-proc? x xs)
-  
+  (list? (member x xs))
   )
 
 ; using a manual check

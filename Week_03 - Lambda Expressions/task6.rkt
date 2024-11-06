@@ -30,7 +30,10 @@ Use it to evaluate the following expressions:
 |#
 
 (define (accumulate f acc start end transform next)
-  
+  (if (> start end)
+      acc
+      (accumulate f (f (transform start) acc) (next start) end transform next)
+      )
   )
 
 ; 1 + 2 + 3 + ... + 100

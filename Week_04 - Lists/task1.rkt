@@ -18,7 +18,7 @@ the result should be
 |#
 
 (define (sort-list xs)
-  
+  (curry sort xs) ; (λ (p?) (sort xs p?))
   )
 
 (equal?

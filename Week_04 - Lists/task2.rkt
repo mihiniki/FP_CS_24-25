@@ -9,15 +9,24 @@ Define a procedure that returns the length of a list.
 |#
 
 (define (my-length-iter xs)
-  
+  (define (helper result leftover)
+    (if (null? leftover)
+        result
+        (helper (add1 result) (cdr leftover))
+        )
+    )
+  (helper 0 xs)
   )
 
 (define (my-length-rec xs)
-  
+  (if (null? xs)
+      0
+      (add1 (my-length-rec (cdr xs)))
+      )
   )
 
 (define (my-length-proc xs)
- 
+  (length xs)
   )
 
 ; using an iterative procedure

@@ -11,11 +11,21 @@ transforms a number into a list of its digits and vice versa.
 |#
 
 (define (num-to-xs n)
- 
+  (define (helper result leftover)
+    (if (zero? leftover)
+        result
+        (helper (cons (remainder leftover 10) result) (quotient leftover 10))
+     )
+    )
+  (helper null n)
   )
 
 (define (xs-to-num xs)
- 
+  (foldl
+   (λ (digit acc) (+ (* acc 10) digit))
+   0
+   xs
+   )
   )
 
 (equal? (num-to-xs 123) '(1 2 3))

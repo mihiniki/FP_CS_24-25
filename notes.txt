@@ -692,3 +692,197 @@ Types
 		all    (\ x -> even x)         [2, 4, 6]    => True
 		any    (\ x -> odd x)          [2, 4, 6]    => False
 		any    (\ x -> mod x 10 == 0)  [20, 44, 61] => True
+
+
+
+########################################################################################################################
+# Week_08 - Lists and Tuples
+########################################################################################################################
+
+
+	Tuples (Vectors) (Ordered pairs)
+
+		- data structures whose size has to be explicitly stated (analogy with array in C++)
+		- can hold multiple types (ex. x :: (Int, String, [Double]) is a vector with 3 dimensions)
+		- fst (5, 6) => 5
+		- snd (5, 6) => 6
+
+		Examples:
+		a vector with two coordinates representing a point in 2D space:
+		type Point2D = (Int, Int)
+		-- typedef std::pair<int, int> Point2D;
+
+		Now every function that accepts a Point2D will look like this:
+
+		helper :: Point2D -> Int -- instead of (Int, Int) -> Int
+		helper (x, y) = x + y -- this function sums up the coordinates. Notice the pattern matching!
+		-- helper x = fst x + snd x
+
+		Notice:
+		type String = [Char]
+
+
+	Typeclasses
+
+		This is the analog of using "template <class T>" in C++.
+
+		Example:
+			Let's say that a function should accept numbers in general, not only Int or Double.
+
+			old:
+			helper :: Int -> Int
+
+			new:
+			helper :: (Num a, Num b) => a -> b
+
+		Some useful Typeclasses
+			if only numbers then Num
+			if ==, /= then Eq
+			if <, <=, >=, > then Ord
+			if only Float and Double then Fractional
+			if only Int and Integer then Integral
+			if making an algebraic type that has to be printed then Show
+
+		In most cases the compiler will help us (Compiler Driven Development). We'll demonstrate how this works today!
+
+		Detailed example and workflow:
+			A function that adds 1 to every number in a list:
+				If we were working with whole numbers it would be:
+					addOne :: [Int] -> [Int]
+					addOne xs = map (\ x -> x + 1) xs
+				When working with typeclasses we're abstracting away the whole numbers concept - we're now working with anything that is a number.
+				You might start with:
+					addOne :: [a] -> [a]
+					addOne xs = map (\ x -> x + 1) xs
+				But this will throw an error because "a" is not bound/restricted - as written above it can be any type, including "Char", "String", even "[String]" and functions.
+				And we know that "+" is not defined for types different from "Num". This is why if we run the above code we'll get an error:
+					• No instance for (Num a) arising from a use of ‘+’
+					Possible fix:
+						add (Num a) to the context of
+						the type signature for:
+							addOne :: forall a. [a] -> [a]
+					• In the expression: x + 1
+					In the first argument of ‘map’, namely ‘(\ x -> x + 1)’
+					In the expression: map (\ x -> x + 1) xs
+				However! Look at what the compiler is saying:
+					add (Num a) to the context of [...] addOne
+				This is the key to compiler driven development! The compiler helps us define the proper types by suggesting the restriction that we need to place.
+				We do that and now the following function works:
+					addOne :: (Num a) => [a] -> [a]
+					addOne xs = map (\ x -> x + 1) xs
+
+			The approach I suggest is therefore the following:
+				1. Write our the declaration skipping the typeclasses (addOne :: [a] -> [a]).
+				2. Try to run the script. It will fail with errors that help you (add (Num a) to the context of [...] addOne).
+				3. Fix the declarations from the first to the last (i.e. by going from top to bottom in the error messages) by adding the typeclasses.
+				4. If you cannot fix the declarations and the task does not require them, remove all declarations. The code will still work because Haskell has built-in type inference.
+
+		A note about the "read" function:
+			We know that we can use read to transform a string into a number.
+			Let's say we define the following function without a declaration:
+				f ss = read ss
+			And call it like: f "16" and f "15.42".
+			What is the problem here?
+				We can't define "f" without a declaration because Haskell has to know what type we want to return from every call.
+					The first call suggests "Int", but the second one suggests "Double".
+			So, remember: when using "read" always specify return type explicitly.
+
+
+
+########################################################################################################################
+# Week_09 - Pattern matching. Typeclasses
+########################################################################################################################
+
+	###################################################################################################
+	# Folding (Map Reduce)
+	###################################################################################################
+
+	foldl <- Start from left using an accumulator as an initial value. Return accumulator if empty list.
+	foldl1 <- Start from left using the left-most element as an initial value. If empty list, then error!
+
+	foldr <- Start from right using an accumulator as an initial value. Return accumulator if empty list.
+	foldr1 <- Start from right using the right-most element as an initial value. If empty list, then error!
+
+	-- if the list is empty, the result is the initial value z; else
+	-- apply f to the first element and the result of folding the rest
+	foldr f z []     = z 
+	foldr f z (x:xs) = f x (foldr f z xs) 
+
+	foldr1 _ [x] = x
+	foldr1 f (x:xs) = f x (foldr1 f xs)
+
+	-- if the list is empty, the result is the initial value; else
+	-- we recurse immediately, making the new initial value the result
+	-- of combining the old initial value with the first element
+	foldl f z []     = z                  
+	foldl f z (x:xs) = foldl f (f z x) xs
+
+	foldl1 _ [x]       = x
+	foldl1 f (x:y:zs)  = f (f x y) (foldl1 f zs)
+	-- alternative: foldl1 f (x:y:zs) = foldl1 f ((f x y):zs)
+
+	foldl (\ acc x -> acc - x) 0 [1, 2, 3]
+	((0 - 1) - 2) - 3 = -6
+
+	foldl1 (\ x y -> x - y) [1, 2, 3]
+	(1 - 2) - 3 = -4
+
+	foldr (\ x acc -> x + acc) 0 [1, 2, 3]
+	6
+
+	foldr1 (\ x y -> x + y) [1, 2, 3]
+	6
+
+	###################################################################################################
+	# Let Syntax
+	###################################################################################################
+
+	Description:
+		A nested, lexically-scoped, mutually-recursive list of declarations (let is often called `letrec` in other languages). The scope of the declarations is the expression and the right hand side of the declarations.
+
+	Examples:
+
+	aaa = let y = 1+2
+			  z = 4+6
+			  in  y+z
+
+    aaa x y = let r = 3 
+                  s = 6
+                  in  r*x + s*y
+
+	aaa vector = let (x, y) = vector in x + y
+
+
+
+###################################################################################################
+# Week_10 - Algebraic Types. Nonlinear Data Structures
+###################################################################################################
+
+Algebraic Data Types:
+
+   the analog of class and struct in C++
+      can also be used as enumerations
+   three parts: name, types (optional), constructors
+   the name of the constructors may not match the name of the data type
+
+Syntax: data <name> [<types>] = <constructors>
+
+-- enumeration
+data Weather = Hot | Cold
+
+You would use this as follows:
+   f :: Weather -> Int
+   f Hot = 42
+   f Cold = -42
+
+-- new type called "Shape"
+-- it can be used to create figures with different number of parameters
+-- in this case: radius for a circle and length of sides for a triangle
+Non-polymorphic: data Shape = Circle Int | Triangle Int Int Int
+Polymorphic: data Shape a = Circle a | Triangle a a a
+
+Note: In order to have the ability to print a shape, we must tell Haskell to redefine the output operator.
+This happens like so:
+
+data Shape a = Circle a | Triangle a a a
+ deriving (Show)
